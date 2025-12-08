@@ -1,35 +1,32 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Traits\ApiResponses;
 use Illuminate\Http\Request;
-use App\Http\Requests\ApiLoginRequest;
+//use App\Http\Requests\Api\LoginUserRequest;
+use App\Http\Requests\LoginUserRequest;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
-
     use ApiResponses;
-    public function login(LoginUserRequest $request){
-        $request->validated($request->all());
 
+    public function login(LoginUserRequest $request)
+    {
+        $validated = $request->validated();
 
-        if (!Auth::attemp($request->only('email' , 'password'))){
+        if (!Auth::attempt($request->only('email', 'password'))) {
             return $this->error('Invalid credentials', 401);
         }
 
-        $user = User::firstWhere('email' , $request->email);
+        $user = User::firstWhere('email', $request->email);
 
-        return $this->ok(
-            'Authenticated' ,
-            [
-                'token' => $user->createToken('Api token for' . $user->email)->plainTextToken
-            ]
-
-            );
-
+        return $this->ok('Authenticated', [
+            'token' => $user->createToken('Api token for ' . $user->email)->plainTextToken
+        ]);
     }
 
-   
 }
